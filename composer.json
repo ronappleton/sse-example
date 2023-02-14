@@ -1,0 +1,29 @@
+{
+    "name": "ronappleton/sse-example",
+    "description": "A real simple websocket server-sent event setup for learning.",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Ronappleton\\SseExample\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ron Appleton",
+            "email": "ron.appleton@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">8.0",
+        "cboden/ratchet": "dev-master",
+        "illuminate/database": "8.x-dev",
+        "illuminate/support": "8.x-dev",
+        "php-amqplib/php-amqplib": "^3.5"
+    }
+    ,
+    "require-dev": {
+        "roave/security-advisories": "dev-latest"
+    }
+}

@@ -5,7 +5,7 @@ require dirname(__DIR__) . '/database/bootstrap.php';
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use React\EventLoop\Loop;
-use Ronappleton\SseExample\Services\Watcher;
+use RonAppleton\SseExample\Services\Watcher;
 
 try {
     $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
@@ -18,13 +18,13 @@ try {
 $watcher = new Watcher;
 $loop = Loop::get();
 
-$topic = new \Ratchet\Wamp\Topic(); // Working from here exception thrown running due to topic being a string
+$topic = new \Ratchet\Wamp\Topic('orders');
 
 $queues = [
     'orders' => 'onOrderMessage',
 ];
 
-$webSock = new React\Socket\SocketServer('0.0.0.0:8082', [], $loop);
+$webSock = new React\Socket\SocketServer('0.0.0.0:8888', [], $loop);
 $webServer = new Ratchet\Server\IoServer(
     new Ratchet\Http\HttpServer(
         new Ratchet\WebSocket\WsServer(
@@ -39,15 +39,26 @@ $webServer = new Ratchet\Server\IoServer(
 
 $channel = $connection->channel();
 
-foreach ($queues as $queue => $processor) {
+foreach ($queues as $queue => $method) {
     echo sprintf('Creating and attaching to queue: %s', $queue) . PHP_EOL;
 
     $channel->queue_declare($queue, false, false, false, false);
-    $channel->basic_consume($queue, '', false, true, false, false, $processor);
+    $channel->basic_consume(
+        $queue,
+        '',
+        false,
+        true,
+        false,
+        false,
+        static fn ($msg) => $watcher->$method($msg));
 }
 
 
 
-echo 'Starting server now on http://localhost:6666 Ctrl+C to quit.' . PHP_EOL;
+echo 'Starting server now on http://localhost:8888 Ctrl+C to quit.' . PHP_EOL;
 
-$loop->run();
+try {
+    $loop->run();
+} catch (Exception $e) {
+    echo $e->getMessage();
+}

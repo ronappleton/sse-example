@@ -1,12 +1,15 @@
 <?php
 
-namespace Ronappleton\SseExample\Services;
+declare(strict_types=1);
+
+namespace RonAppleton\SseExample\Services;
 
 use Ratchet\ConnectionInterface;
 use Ratchet\Wamp\Topic;
 use Ratchet\Wamp\WampServerInterface;
+use Ratchet\WebSocket\WsServerInterface;
 
-class Watcher implements WampServerInterface
+class Watcher implements WampServerInterface, WsServerInterface
 {
     public function __construct(
         private array $subscribedTopics = [],
@@ -69,5 +72,10 @@ class Watcher implements WampServerInterface
         trigger_error("An error has occurred: {$e->getMessage()}\n", E_USER_WARNING);
 
         $conn->close();
+    }
+
+    function getSubProtocols(): array
+    {
+        return ['ocpp1.6'];
     }
 }
